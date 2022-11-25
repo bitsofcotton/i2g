@@ -54,8 +54,8 @@ int main(int argc, const char* argv[]) {
       for(int j = 0; j < in1.cols(); j ++)
         in1(i, j) = in1(i, j) < half ? num_t(int(1)) : num_t(int(0));
     auto in(in1);
-    const int shy[8] = {- 1, - 1, - 1,   0, 0,   1, 1, 1};
-    const int shx[8] = {- 1,   0,   1, - 1, 1, - 1, 0, 1};
+    const int shy[8] = {- 1, - 1, - 1, 0, 1, 1,   1,   0};
+    const int shx[8] = {- 1,   0,   1, 1, 1, 0, - 1, - 1};
     for(int k = 0; k < 8; k ++)
       for(int i = 0; i < in1.rows(); i ++)
         for(int j = 0; j < in1.cols(); j ++)
@@ -72,45 +72,22 @@ int main(int argc, const char* argv[]) {
     auto mask(in);
     mask.O();
     mask(p[p.size() - 1].first, p[p.size() - 1].second) = num_t(int(1));
+    int idx(7);
     while(true) {
       auto& lp(p[p.size() - 1]);
-      // XXX: only left-top part of convex hull is accepted.
-      //      otherwise, broken result.
-      // N.B. but this is enough for us even if there's broken or not.
-      //      to reshape some form.
-      if(0 <= lp.first - 1 && 0 <= lp.second - 1 &&
-         in(lp.first - 1, lp.second - 1) == num_t(int(1)) &&
-         mask(lp.first - 1, lp.second - 1) < half)
-        p.emplace_back(make_pair(lp.first - 1, lp.second - 1));
-      else if(0 <= lp.first - 1 &&
-              in(lp.first - 1, lp.second) == num_t(int(1)) &&
-              mask(lp.first - 1, lp.second) < half)
-        p.emplace_back(make_pair(lp.first - 1, lp.second));
-      else if(0 <= lp.first - 1 && lp.second + 1 < in.cols() &&
-              in(lp.first - 1, lp.second + 1) == num_t(int(1)) &&
-              mask(lp.first - 1, lp.second + 1) < half)
-        p.emplace_back(make_pair(lp.first - 1, lp.second + 1));
-      else if(                            lp.second + 1 < in.cols() &&
-              in(lp.first, lp.second + 1) == num_t(int(1)) &&
-              mask(lp.first, lp.second + 1) < half)
-        p.emplace_back(make_pair(lp.first, lp.second + 1));
-      else if(lp.first + 1 < in.rows() && lp.second + 1 < in.cols() &&
-              in(lp.first + 1, lp.second + 1) == num_t(int(1)) &&
-              mask(lp.first + 1, lp.second + 1) < half)
-        p.emplace_back(make_pair(lp.first + 1, lp.second + 1));
-      else if(lp.first + 1 < in.rows() &&
-              in(lp.first + 1, lp.second) == num_t(int(1)) &&
-              mask(lp.first + 1, lp.second) < half)
-        p.emplace_back(make_pair(lp.first + 1, lp.second));
-      else if(lp.first + 1 < in.rows() && 0 < lp.second - 1 &&
-              in(lp.first + 1, lp.second - 1) == num_t(int(1)) &&
-              mask(lp.first + 1, lp.second - 1) < half)
-        p.emplace_back(make_pair(lp.first + 1, lp.second - 1));
-      else if(                            0 < lp.second - 1 &&
-              in(lp.first, lp.second - 1) == num_t(int(1)) &&
-              mask(lp.first, lp.second - 1) < half)
-        p.emplace_back(make_pair(lp.first, lp.second - 1));
-      else break;
+      int di;
+      for(di = 0; di < 8; di ++) {
+        auto q(make_pair(lp.first + shy[(idx + di) % 8], lp.second + shx[(idx + di) % 8]));
+        if(0 <= q.first && q.first < in.rows() &&
+           0 <= q.second && q.second < in.cols() &&
+           in(q.first, q.second) == num_t(int(1)) &&
+           mask(q.first, q.second) < half) {
+          p.emplace_back(q);
+          idx = (idx + di + 6) % 8;
+          break;
+        }
+      }
+      if(di == 8) break;
       mask(p[p.size() - 1].first, p[p.size() - 1].second) = num_t(int(1));
     }
     SimpleVector<num_t> py(p.size());
