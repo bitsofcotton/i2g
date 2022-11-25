@@ -87,7 +87,7 @@ int main(int argc, const char* argv[]) {
               mask(lp.first - 1, lp.second + 1) < half)
         p.emplace_back(make_pair(lp.first - 1, lp.second + 1));
       else if(                            lp.second + 1 < in.cols() &&
-              in(lp.first, lp.second + 1) == num_t(int(1) &&
+              in(lp.first, lp.second + 1) == num_t(int(1)) &&
               mask(lp.first, lp.second + 1) < half)
         p.emplace_back(make_pair(lp.first, lp.second + 1));
       else if(lp.first + 1 < in.rows() && lp.second + 1 < in.cols() &&
