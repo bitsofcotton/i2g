@@ -54,8 +54,8 @@ int main(int argc, const char* argv[]) {
       for(int j = 0; j < in1.cols(); j ++)
         in1(i, j) = in1(i, j) < half ? num_t(int(1)) : num_t(int(0));
     auto in(in1);
-    const int shy[8] = {- 1, -1, - 1, 0, 0, 1, 1, 1};
-    const int shx[8] = {- 1, -1, - 1, 0, 0, 1, 1, 1};
+    const int shy[8] = {- 1, - 1, - 1,   0, 0,   1, 1, 1};
+    const int shx[8] = {- 1,   0,   1, - 1, 1, - 1, 0, 1};
     for(int k = 0; k < 8; k ++)
       for(int i = 0; i < in1.rows(); i ++)
         for(int j = 0; j < in1.cols(); j ++)
