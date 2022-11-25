@@ -74,6 +74,10 @@ int main(int argc, const char* argv[]) {
     mask(p[p.size() - 1].first, p[p.size() - 1].second) = num_t(int(1));
     while(true) {
       auto& lp(p[p.size() - 1]);
+      // XXX: only left-top part of convex hull is accepted.
+      //      otherwise, broken result.
+      // N.B. but this is enough for us even if there's broken or not.
+      //      to reshape some form.
       if(0 <= lp.first - 1 && 0 <= lp.second - 1 &&
          in(lp.first - 1, lp.second - 1) == num_t(int(1)) &&
          mask(lp.first - 1, lp.second - 1) < half)
