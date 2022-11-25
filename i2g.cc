@@ -58,37 +58,45 @@ int main(int argc, const char* argv[]) {
           p.emplace_back(make_pair(i, j));
           break;
         }
+    auto mask(in);
+    mask.O();
+    mask(p[p.size() - 1].first, p[p.size() - 1].second) = num_t(int(1));
     while(true) {
       auto& lp(p[p.size() - 1]);
       if(0 <= lp.first - 1 && 0 <= lp.second - 1 &&
-         in(lp.first - 1, lp.second - 1) < half)
+         in(lp.first - 1, lp.second - 1) < half &&
+         mask(lp.first - 1, lp.second - 1) < half)
         p.emplace_back(make_pair(lp.first - 1, lp.second - 1));
       else if(0 <= lp.first - 1 &&
-              in(lp.first - 1, lp.second) < half)
+              in(lp.first - 1, lp.second) < half &&
+              mask(lp.first - 1, lp.second) < half)
         p.emplace_back(make_pair(lp.first - 1, lp.second));
       else if(0 <= lp.first - 1 && lp.second + 1 < in.cols() &&
-              in(lp.first - 1, lp.second + 1) < half)
+              in(lp.first - 1, lp.second + 1) < half &&
+              mask(lp.first - 1, lp.second + 1) < half)
         p.emplace_back(make_pair(lp.first - 1, lp.second + 1));
       else if(                            lp.second + 1 < in.cols() &&
-              in(lp.first, lp.second + 1) < half)
+              in(lp.first, lp.second + 1) < half &&
+              mask(lp.first, lp.second + 1) < half)
         p.emplace_back(make_pair(lp.first, lp.second + 1));
       else if(lp.first + 1 < in.rows() && lp.second + 1 < in.cols() &&
-              in(lp.first + 1, lp.second + 1) < half)
+              in(lp.first + 1, lp.second + 1) < half &&
+              mask(lp.first + 1, lp.second + 1) < half)
         p.emplace_back(make_pair(lp.first + 1, lp.second + 1));
       else if(lp.first + 1 < in.rows() &&
-              in(lp.first + 1, lp.second) < half)
+              in(lp.first + 1, lp.second) < half &&
+              mask(lp.first + 1, lp.second) < half)
         p.emplace_back(make_pair(lp.first + 1, lp.second));
       else if(lp.first + 1 < in.rows() && 0 < lp.second - 1 &&
-              in(lp.first + 1, lp.second - 1) < half)
+              in(lp.first + 1, lp.second - 1) < half &&
+              mask(lp.first + 1, lp.second - 1) < half)
         p.emplace_back(make_pair(lp.first + 1, lp.second - 1));
       else if(                            0 < lp.second - 1 &&
-              in(lp.first, lp.second - 1) < half)
+              in(lp.first, lp.second - 1) < half &&
+              mask(lp.first, lp.second - 1) < half)
         p.emplace_back(make_pair(lp.first, lp.second - 1));
       else break;
-      auto q(p);
-      q.erase(q.end() - 1);
-      std::sort(q.begin(), q.end());
-      if(binary_search(q.begin(), q.end(), p[p.size() - 1])) break;
+      mask(p[p.size() - 1].first, p[p.size() - 1].second) = num_t(int(1));
     }
     SimpleVector<num_t> py(p.size());
     SimpleVector<num_t> px(p.size());
@@ -108,13 +116,25 @@ int main(int argc, const char* argv[]) {
     auto in(rgb2d<num_t>(in0));
     SimpleMatrix<num_t> out(sz, sz);
     out.O(num_t(int(1)));
+    auto my(in(0, 0));
+    auto mx(in(1, 0));
+    auto My(in(0, 0));
+    auto Mx(in(1, 0));
+    for(int i = 0; i < in.cols(); i ++) {
+      my = min(my, in(0, i));
+      mx = min(mx, in(1, i));
+      My = max(My, in(0, i));
+      Mx = max(Mx, in(1, i));
+    }
+    if(my == My) My += num_t(int(1));
+    if(mx == Mx) Mx += num_t(int(1));
     for(int i = 0; i < in.cols(); i ++) {
       SimpleVector<num_t> st(2);
       SimpleVector<num_t> ed(2);
-      st[0] = in(0, i);
-      st[1] = in(1, i);
-      ed[0] = in(0, (i + 1) % in.cols());
-      ed[1] = in(1, (i + 1) % in.cols());
+      st[0] = (in(0, i) - my) / (My - my) * num_t(sz);
+      st[1] = (in(1, i) - mx) / (Mx - mx) * num_t(sz);
+      ed[0] = (in(0, (i + 1) % in.cols()) - my) / (My - my) * num_t(sz);
+      ed[1] = (in(1, (i + 1) % in.cols()) - mx) / (Mx - mx) * num_t(sz);
       drawMatchLine<num_t>(out, st, ed, num_t(int(0)));
     }
     std::vector<SimpleMatrix<num_t> > out0;
