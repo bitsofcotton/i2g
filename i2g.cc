@@ -115,7 +115,7 @@ int main(int argc, const char* argv[]) {
       st[1] = in(1, i);
       ed[0] = in(0, (i + 1) % in.cols());
       ed[1] = in(1, (i + 1) % in.cols());
-      drawLine<num_t>(out, st, ed, num_t(int(0)));
+      drawMatchLine<num_t>(out, st, ed, num_t(int(0)));
     }
     std::vector<SimpleMatrix<num_t> > out0;
     out0.emplace_back(std::move(out));
