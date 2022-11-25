@@ -89,19 +89,19 @@ int main(int argc, const char* argv[]) {
       q.erase(q.end() - 1);
       std::sort(q.begin(), q.end());
       if(binary_search(q.begin(), q.end(), p[p.size() - 1])) break;
-      SimpleVector<num_t> py(p.size());
-      SimpleVector<num_t> px(p.size());
-      for(int i = 0; i < p.size(); i ++) {
-        py[i] = p[i].first;
-        px[i] = p[i].second;
-      }
-      SimpleMatrix<num_t> out(2, sz);
-      out.row(0) = (dft<num_t>(- sz) * dft<num_t>(max(sz, py.size())).subMatrix(0, 0, sz, py.size()) * py.template cast<complex<num_t> >()).template real<num_t>();
-      out.row(1) = (dft<num_t>(- sz) * dft<num_t>(max(sz, px.size())).subMatrix(0, 0, sz, px.size()) * px.template cast<complex<num_t> >()).template real<num_t>();
-      vector<SimpleMatrix<num_t> > out0;
-      out0.emplace_back(std::move(out));
-      savep2or3<num_t>(argv[4], out0, true);
     }
+    SimpleVector<num_t> py(p.size());
+    SimpleVector<num_t> px(p.size());
+    for(int i = 0; i < p.size(); i ++) {
+      py[i] = p[i].first;
+      px[i] = p[i].second;
+    }
+    SimpleMatrix<num_t> out(2, sz);
+    out.row(0) = (dft<num_t>(- sz) * dft<num_t>(max(sz, py.size())).subMatrix(0, 0, sz, py.size()) * py.template cast<complex<num_t> >()).template real<num_t>();
+    out.row(1) = (dft<num_t>(- sz) * dft<num_t>(max(sz, px.size())).subMatrix(0, 0, sz, px.size()) * px.template cast<complex<num_t> >()).template real<num_t>();
+    vector<SimpleMatrix<num_t> > out0;
+    out0.emplace_back(std::move(out));
+    savep2or3<num_t>(argv[4], out0, true);
   } else if(m == '-') {
     std::vector<SimpleMatrix<num_t> > in0;
     if(! loadp2or3<num_t>(in0, argv[3])) return - 1;
