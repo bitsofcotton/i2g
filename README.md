@@ -7,4 +7,4 @@ Only works with edge-detected image with tracing only most outside one.
     ./i2g - <size> <in-shape.ppm>  <out.ppm>
 
 # Tips
-out-shape.ppm can be applied with goki check cc i2i command.
+We can apply goki check cc i2i command to out-shape.ppm.
