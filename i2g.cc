@@ -101,7 +101,7 @@ int main(int argc, const char* argv[]) {
     out.row(1) = (dft<num_t>(- sz) * dft<num_t>(max(sz, px.size())).subMatrix(0, 0, sz, px.size()) * px.template cast<complex<num_t> >()).template real<num_t>();
     vector<SimpleMatrix<num_t> > out0;
     out0.emplace_back(std::move(out));
-    savep2or3<num_t>(argv[4], out0, true);
+    savep2or3<num_t>(argv[4], normalize<num_t>(out0), true);
   } else if(m == '-') {
     std::vector<SimpleMatrix<num_t> > in0;
     if(! loadp2or3<num_t>(in0, argv[3])) return - 1;
