@@ -60,7 +60,7 @@ int main(int argc, const char* argv[]) {
       for(int i = 0; i < in1.rows(); i ++)
         for(int j = 0; j < in1.cols(); j ++)
           in(max(0, min(in.rows() - 1, shy[k] + i)),
-             max(0, min(in.cols() - 1, shx[k] + i))) += in1(i, j);
+             max(0, min(in.cols() - 1, shx[k] + j))) += in1(i, j);
     std::vector<std::pair<int, int> > p;
     p.reserve(in.rows() * in.cols());
     for(int i = 0; i < in.rows(); i ++)
