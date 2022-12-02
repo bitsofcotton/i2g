@@ -53,26 +53,29 @@ int main(int argc, const char* argv[]) {
     for(int i = 0; i < in1.rows(); i ++)
       for(int j = 0; j < in1.cols(); j ++)
         in1(i, j) = in1(i, j) < half ? num_t(int(1)) : num_t(int(0));
-    auto in(in1);
+    SimpleMatrix<int8_t> in(in1.rows() + 2, in1.cols() + 2);
+    in.O();
     const int shy[8] = {- 1, - 1, - 1, 0, 1, 1,   1,   0};
     const int shx[8] = {- 1,   0,   1, 1, 1, 0, - 1, - 1};
+    for(int i = 0; i < in1.rows(); i ++)
+      for(int j = 0; j < in1.cols(); j ++)
+        in(i + 1, j + 1) = int8_t(in1(i, j));
     for(int k = 0; k < 8; k ++)
       for(int i = 0; i < in1.rows(); i ++)
         for(int j = 0; j < in1.cols(); j ++)
-          in(max(0, min(in.rows() - 1, shy[k] + i)),
-             max(0, min(in.cols() - 1, shx[k] + j))) += in1(i, j);
+          in(shy[k] + i + 1, shx[k] + j + 1) += int8_t(in1(i, j));
     std::vector<std::pair<int, int> > p;
     p.reserve(in.rows() * in.cols());
     for(int i = 0; i < in.rows(); i ++)
       for(int j = 0; j < in.cols(); j ++)
-        if(in(i, j) == num_t(int(1))) {
+        if(in(i, j) == 1) {
           p.emplace_back(make_pair(i, j));
           break;
         }
     auto mask(in);
     mask.O();
-    mask(p[p.size() - 1].first, p[p.size() - 1].second) = num_t(int(1));
-    int idx(7);
+    mask(p[p.size() - 1].first, p[p.size() - 1].second) = 1;
+    int idx(0);
     while(true) {
       auto& lp(p[p.size() - 1]);
       int di;
@@ -80,21 +83,21 @@ int main(int argc, const char* argv[]) {
         auto q(make_pair(lp.first + shy[(idx + di) % 8], lp.second + shx[(idx + di) % 8]));
         if(0 <= q.first && q.first < in.rows() &&
            0 <= q.second && q.second < in.cols() &&
-           in(q.first, q.second) == num_t(int(1)) &&
-           mask(q.first, q.second) < half) {
+           in(q.first, q.second) == 1 &&
+           ! mask(q.first, q.second)) {
           p.emplace_back(q);
-          idx = (idx + di + 6) % 8;
+          idx = (idx + di + 7) % 8;
           break;
         }
       }
       if(di == 8) break;
-      mask(p[p.size() - 1].first, p[p.size() - 1].second) = num_t(int(1));
+      mask(p[p.size() - 1].first, p[p.size() - 1].second) = 1;
     }
     SimpleVector<num_t> py(p.size());
     SimpleVector<num_t> px(p.size());
     for(int i = 0; i < p.size(); i ++) {
-      py[i] = p[i].first;
-      px[i] = p[i].second;
+      py[i] = num_t(int(p[i].first));
+      px[i] = num_t(int(p[i].second));
     }
     SimpleMatrix<num_t> out(2, sz);
     out.row(0) = (dft<num_t>(- sz) * dft<num_t>(max(sz, py.size())).subMatrix(0, 0, sz, py.size()) * py.template cast<complex<num_t> >()).template real<num_t>();
