@@ -18,12 +18,8 @@
 //#define int int64_t
 #define int int32_t
 #include "../goki_check_cc/lieonn.hh"
-typedef myfloat num_t;
-#include "../goki_check_cc/p0.hh"
-#include "../goki_check_cc/p1.hh"
-#include "../goki_check_cc/decompose.hh"
-#include "../goki_check_cc/catg.hh"
 #include "../goki_check_cc/goki.hh"
+typedef myfloat num_t;
 
 using std::cout;
 using std::cerr;
@@ -49,7 +45,7 @@ int main(int argc, const char* argv[]) {
     std::vector<SimpleMatrix<num_t> > in0;
     if(! loadp2or3<num_t>(in0, argv[3])) return - 1;
     auto half(num_t(int(1)) / num_t(int(2)));
-    auto in1(rgb2d<num_t>(in0));
+    auto in1(in0.size() == 1 ? in0[0] : rgb2d<num_t>(in0));
     for(int i = 0; i < in1.rows(); i ++)
       for(int j = 0; j < in1.cols(); j ++)
         in1(i, j) = in1(i, j) < half ? num_t(int(1)) : num_t(int(0));
@@ -59,16 +55,17 @@ int main(int argc, const char* argv[]) {
     const int shx[8] = {- 1,   0,   1, 1, 1, 0, - 1, - 1};
     for(int i = 0; i < in1.rows(); i ++)
       for(int j = 0; j < in1.cols(); j ++)
-        in(i + 1, j + 1) = int8_t(in1(i, j));
+        in(i + 1, j + 1) = int8_t(int(in1(i, j)));
     for(int k = 0; k < 8; k ++)
       for(int i = 0; i < in1.rows(); i ++)
         for(int j = 0; j < in1.cols(); j ++)
-          in(shy[k] + i + 1, shx[k] + j + 1) += int8_t(in1(i, j));
+          in(shy[k] + i + 1, shx[k] + j + 1) += int8_t(int(in1(i, j)));
     std::vector<std::pair<int, int> > p;
     p.reserve(in.rows() * in.cols());
     for(int i = 0; i < in.rows(); i ++)
       for(int j = 0; j < in.cols(); j ++)
-        if(in(i, j) == 1) {
+        // if(in(i, j) == 1) {
+        if(in(i, j)) {
           p.emplace_back(make_pair(i, j));
           break;
         }
@@ -83,7 +80,8 @@ int main(int argc, const char* argv[]) {
         auto q(make_pair(lp.first + shy[(idx + di) % 8], lp.second + shx[(idx + di) % 8]));
         if(0 <= q.first && q.first < in.rows() &&
            0 <= q.second && q.second < in.cols() &&
-           in(q.first, q.second) == 1 &&
+           // in(q.first, q.second) == 1 &&
+           in(q.first, q.second) &&
            ! mask(q.first, q.second)) {
           p.emplace_back(q);
           idx = (idx + di + 7) % 8;
@@ -104,11 +102,11 @@ int main(int argc, const char* argv[]) {
     out.row(1) = (dft<num_t>(- sz) * dft<num_t>(max(sz, px.size())).subMatrix(0, 0, sz, px.size()) * px.template cast<complex<num_t> >()).template real<num_t>();
     vector<SimpleMatrix<num_t> > out0;
     out0.emplace_back(std::move(out));
-    savep2or3<num_t>(argv[4], normalize<num_t>(out0), true);
+    savep2or3<num_t>(argv[4], normalize<num_t>(out0));
   } else if(m == '-') {
     std::vector<SimpleMatrix<num_t> > in0;
     if(! loadp2or3<num_t>(in0, argv[3])) return - 1;
-    auto in(rgb2d<num_t>(in0));
+    auto in(in0.size() == 1 ? in0[0] : rgb2d<num_t>(in0));
     SimpleMatrix<num_t> out(sz, sz);
     out.O(num_t(int(1)));
     auto my(in(0, 0));
@@ -134,7 +132,7 @@ int main(int argc, const char* argv[]) {
     }
     std::vector<SimpleMatrix<num_t> > out0;
     out0.emplace_back(std::move(out));
-    savep2or3<num_t>(argv[4], out0, true);
+    savep2or3<num_t>(argv[4], out0);
   }
   return 0;
 }
