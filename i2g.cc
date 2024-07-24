@@ -18,7 +18,6 @@
 //#define int int64_t
 #define int int32_t
 #include "../goki_check_cc/lieonn.hh"
-#include "../goki_check_cc/goki.hh"
 typedef myfloat num_t;
 
 using std::cout;
